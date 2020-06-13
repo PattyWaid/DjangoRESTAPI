@@ -58,6 +58,9 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:8100',
 ]
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+
 ROOT_URLCONF = 'djangoproject.urls'
 
 TEMPLATES = [
