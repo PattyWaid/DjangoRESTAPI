@@ -24,6 +24,11 @@ router.register(r'groups', views.GroupViewSet)
 router.register(r'posts', views.PostViewSet)
 router.register(r'comments', views.CommentsViewSet)
 router.register(r'reply', views.CommentsReplyViewSet)
+router.register(r'create', views.CreatePostViewSet)
+router.register(r'add/comments', views.CreateCommentsViewSet)
+router.register(r'add/reply', views.CreateCommentsReplyViewSet)
+router.register(r'posts/<int:recId>', views.PostByIdViewSet)
+
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
