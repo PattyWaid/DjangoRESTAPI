@@ -28,6 +28,9 @@ router.register(r'create', views.CreatePostViewSet)
 router.register(r'add/comments', views.CreateCommentsViewSet)
 router.register(r'add/reply', views.CreateCommentsReplyViewSet)
 router.register(r'posts/<int:recId>', views.PostByIdViewSet)
+router.register(r'posts/<int:recId>', views.DeletePostViewSet)
+router.register(r'posts/<int:recId>', views.UpdatePostViewSet)
+
 
 
 # Wire up our API using automatic URL routing.

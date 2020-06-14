@@ -82,5 +82,22 @@ class CreateCommentsReplySerializer(serializers.ModelSerializer):
         )
 
 
+class PostDeleteSerializer(serializers.HyperlinkedModelSerializer):
+    
+    class Meta:
+        model = Posts
+        fields = (
+            'name', 'description', 'category', 'imagePath',
+            'user'
+        )
+
+class PostUpdateSerializer(serializers.HyperlinkedModelSerializer):
+    
+    class Meta:
+        model = Posts
+        fields = (
+            'name', 'description', 'category', 'imagePath',
+            'user'
+        )
 
         
