@@ -19,17 +19,19 @@ from blogapi import views
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'groups', views.GroupViewSet)
-router.register(r'posts', views.PostViewSet)
-router.register(r'comments', views.CommentsViewSet)
-router.register(r'reply', views.CommentsReplyViewSet)
-router.register(r'create', views.CreatePostViewSet)
-router.register(r'add/comments', views.CreateCommentsViewSet)
-router.register(r'add/reply', views.CreateCommentsReplyViewSet)
-router.register(r'posts/<int:recId>', views.PostByIdViewSet)
-router.register(r'posts/<int:recId>', views.DeletePostViewSet)
-router.register(r'posts/<int:recId>', views.UpdatePostViewSet)
+#router.register(r'users', views.UserViewSet)
+# router.register(r'groups', views.GroupViewSet)
+router.register(r'posts', views.PostViewSet,'posts-list')
+# router.register(r'comments', views.CommentsViewSet)
+router.register(r'create', views.PostViewSet, 'create-list')
+# router.register(r'reply', views.CommentsReplyViewSet)
+router.register(r'add/comments', views.CommentsViewSet)
+router.register(r'add/reply', views.CommentsReplyViewSet)
+router.register(r'posts/<int:recId>', views.PostViewSet, 'post-update')
+router.register(r'posts/<int:recId>', views.PostViewSet, 'post-detail')
+router.register(r'posts/<int:recId>', views.PostViewSet, 'post-delete')
+router.register(r'authorizers', views.PostAuthorizerViewSet, 'authorizers_list')
+
 
 
 
@@ -38,6 +40,7 @@ router.register(r'posts/<int:recId>', views.UpdatePostViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
+    #path('posts/', PostViewSet),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
 
