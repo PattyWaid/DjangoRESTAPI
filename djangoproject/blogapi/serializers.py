@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from blogapi.models import Posts, Comments,CommentsReply, PostAuthorizer
+from blogapi.models import Posts, PostAuthorizer, Comments,CommentsReply
 from django.db import models
-import json
+from django.utils import timezone
 
 
 
@@ -21,70 +21,67 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class CommentsSerializer(serializers.Serializer):
-    commentId = serializers.ReadOnlyField()
-    commentText = serializers.CharField()
-    commentUser = serializers.CharField()
+    commentid = serializers.ReadOnlyField()
+    commenttext = serializers.CharField()
+    commentuser = serializers.CharField()
     comments = serializers.PrimaryKeyRelatedField(
         read_only=False, queryset=Posts.objects.all())
     comment_date = serializers.DateTimeField(read_only=True)
-    commentReply = serializers.SerializerMethodField()
+    commentreply = serializers.SerializerMethodField()
 
 
     def create(self, validated_data):
         comment = Comments(
-            commentText = validated_data['commentText'],
-            commentUser = validated_data['commentUser'],
+            commenttext = validated_data['commenttext'],
+            commentuser = validated_data['commentuser'],
             comments = validated_data['comments']
         )
         comment.save()
         return comment
 
-
-
-
-
-    def get_commentReply(self, instance):
-       commentReply = CommentsReply.objects.filter(commentReply=instance.commentId)
+    def get_commentreply(self, instance):
+       commentReply = CommentsReply.objects.filter(commentreply=instance.commentid)
+       print(commentReply)
        serializer = CommentsReplySerializer(commentReply, many=True)
        return serializer.data
 
-        
-        
 
 class CommentsReplySerializer(serializers.Serializer):
-    replyText = serializers.CharField(max_length=255)
-    replyId = serializers.ReadOnlyField()
-    replyUser = serializers.CharField()
-    commentReply = serializers.PrimaryKeyRelatedField(
+    replytext = serializers.CharField(max_length=255)
+    replyid = serializers.ReadOnlyField()
+    replyuser = serializers.CharField()
+    commentreply = serializers.PrimaryKeyRelatedField(
         read_only=False, queryset=Comments.objects.all())
     reply_date = serializers.DateTimeField(read_only=True)
 
     def create(self, validated_data):
         commentreply = CommentsReply(
-            replyText=validated_data['replyText'],
-            replyUser=validated_data['replyUser'],
-            commentReply=validated_data['commentReply']
+            replytext=validated_data['replytext'],
+            replyuser=validated_data['replyuser'],
+            commentreply=validated_data['commentreply']
         )
 
         commentreply.save()
         return commentreply
-        
+
 
 class PostSerializer(serializers.Serializer):
-    recId = serializers.PrimaryKeyRelatedField(read_only=True)
+    recid = serializers.IntegerField(read_only=True)
     name = serializers.CharField(max_length=255)
     description = serializers.CharField()
-    imagePath = serializers.URLField()
+    imagepath = serializers.URLField()
     category = serializers.CharField(max_length=255)
     email = serializers.CharField(max_length=50)
     user = serializers.ReadOnlyField()
     date_created = serializers.DateTimeField(read_only=True)
+    date_updated = serializers.DateTimeField(read_only=True)
     is_activated = serializers.BooleanField(read_only=True)
     activation_date = serializers.DateTimeField(read_only=True)
     authorization_status = serializers.CharField(read_only=True)
-    authorizer_id = serializers.SerializerMethodField()
+    authorizer = serializers.SerializerMethodField(read_only=True)
     comments = serializers.SerializerMethodField()
-
+    listed = serializers.IntegerField(read_only=True)
+    featured = serializers.IntegerField(read_only=True)
 
 
     def create(self, validated_data):
@@ -93,7 +90,7 @@ class PostSerializer(serializers.Serializer):
         post = Posts(
         name = validated_data['name'],
         description = validated_data['description'],
-        imagePath = validated_data['imagePath'],
+        imagepath = validated_data['imagepath'],
         category = validated_data['category'],
         email = validated_data['email'],
         user = validated_data['email'].split('@')[0],
@@ -109,20 +106,24 @@ class PostSerializer(serializers.Serializer):
         instance.description = validated_data.get('description', instance.description)
         instance.category = validated_data.get('category', instance.category)
         instance.email = validated_data.get('email', instance.email)
+        instance.date_updated = timezone.now()
         instance.save()
         return instance
 
 
     def get_comments(self, instance):
-       comments = Comments.objects.filter(comments=instance.recId)
+       comments = Comments.objects.filter(comments=instance.recid)
        serializer = CommentsSerializer(comments, many=True)
        return serializer.data
 
-    def get_authorizer_id(self, instance):
-        print(instance.authorizer_id)
-        authorizer_id = PostAuthorizer.objects.filter(authorizer_id=instance.authorizer_id_id)
-        serializer = PostAuthorizerSerializer(authorizer_id, many=True)
-        return serializer.data
+    def get_authorizer(self, instance):
+        print(instance.authorizer)
+        authorizer_id = PostAuthorizer.objects.filter(authorizer_id=instance.authorizer_id)
+        if authorizer_id:
+            serializer = PostAuthorizerSerializer(authorizer_id, many=True)
+            return serializer.data
+        else:
+            return []
 
 
 class PostAuthorizerSerializer(serializers.Serializer):

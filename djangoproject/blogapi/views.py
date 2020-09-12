@@ -2,9 +2,9 @@ from django.contrib.auth.models import User, Group
 from rest_framework import status, viewsets
 from django.shortcuts import get_list_or_404, get_object_or_404
 from rest_framework.response import Response
-from blogapi.serializers import UserSerializer, GroupSerializer, PostSerializer, CommentsSerializer, \
-    CommentsReplySerializer, PostAuthorizerSerializer
-from blogapi.models import Posts, Comments, CommentsReply, PostAuthorizer
+from blogapi.serializers import (UserSerializer, GroupSerializer, PostSerializer, PostAuthorizerSerializer
+ , CommentsSerializer, CommentsReplySerializer)
+from blogapi.models import Posts, PostAuthorizer ,  Comments, CommentsReply
 from django.http import JsonResponse
 import json
 from rest_framework.renderers import JSONRenderer
@@ -18,7 +18,9 @@ def get_or_create(self, request):
     print("List:", self.request.data)
     print("RequestType =", request.method == 'POST')
     if (not request.method == 'POST'):
+        print(request.data)
         print('Inside the GET Request')
+
         serializer = PostSerializer(self.queryset, many=True)
         pprint.pprint(json.dumps(serializer.data))
         return serializer.data
@@ -48,9 +50,18 @@ class PostViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
         print("PK", pk)
-        queryset = Posts.objects.get(pk=pk)
-        serializer=PostSerializer(queryset)
-        return Response(serializer.data)
+        if(pk == 'listed'):
+            queryset = Posts.objects.filter(listed=1)
+            serializer=PostSerializer(queryset, many=True)
+            return Response(serializer.data)
+        elif(pk == 'featured'):
+            queryset = Posts.objects.filter(featured=1)
+            serializer = PostSerializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            queryset = Posts.objects.get(pk=pk)
+            serializer=PostSerializer(queryset)
+            return Response(serializer.data)
 
 
     def create(self, request):
@@ -74,7 +85,7 @@ class PostViewSet(viewsets.ViewSet):
 
     def destroy(self, request, pk=None):
         print("Inside Destroy")
-        queryset = Posts.objects.gall()
+        queryset = Posts.objects.all()
         print("PK", pk)
         instance = queryset.get(pk=pk)
         instance.delete()
@@ -107,7 +118,6 @@ class CommentsViewSet(viewsets.ViewSet):
         else:
             print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class CommentsReplyViewSet(viewsets.ViewSet):
